@@ -1,0 +1,183 @@
+\section{Future Development}
+\label{sec:FutureDevelopment}
+\lhead{Future Development}
+This chapter describes where to pick up development and which features could be implemented next.
+
+\subsection{General}
+We encapsulated the parts we developed from the main app so they don't interfere with the main application. Nearly all code we produced can be found found in the following path: \mintinline{latex}{app/pages/private/sofa}. It contains two folders, one for the poll creation wizard and the other for the poll details page.
+The wizard itself is also split into two parts, the start page and the process where all sub pages are included.
+
+\subsection{Unfinished parts}
+Because of the limited time and manpower there are some tasks we didn't manage to finish in time. The following components still need some love:
+\begin{itemize}
+    \item [-] During the development the data layout changed a little bit, when we started a training didn't have a team associated to it. With the new layout there now is, so the team picker needs to be removed and the team needs to be passed to the wizard.
+    \item [-] The exercise selector needs additional checks for verifying that a correct number of exercises is selected.
+    \item [-] The check and accept page of the wizard lacks crucial information: team and selected exercises.
+    \item [-] The styling of the wizard pages needs to be reworked.
+\end{itemize}
+
+\subsection{Additional features}
+There are some basic features needed so the polling works conveniently:
+\begin{itemize}
+    \item [-] Deletion of a already created poll by the coach.
+    \item [-] Actual voting of the players.
+    \item [-] A overview screen of the active poll, for both player and coach.
+    \item [-] A option to change the preferences of a created poll.
+\end{itemize}
+
+\subsection{Vote4Fun Object}
+The data model we worked out with the client looks like this:
+
+\begin{lstlisting}[language=json,caption=\textit{Vote4Fun},label=lst:vote4fun]
+{
+    id: {
+      type: SimpleSchema.RegEx.Id,
+      optional: true
+    },
+    title: {
+      type: String,
+      min: 1,
+      max: 50
+    },
+    description: {
+      type: String,
+      max: 10000,
+      optional: true
+    },
+    trainingTarget: {
+      type: String,
+      max: 200,
+      optional: true
+    },
+    exercises: {
+      type: Array
+    },
+    'exercises.$': {
+      type: Object,
+      optional: true
+    },
+    'exercises.$.referenceId': {
+      type: String,
+      optional: SimpleSchema.RegEx.Id
+    },
+    'exercises.$.duration': {
+      type: Number,
+      min: 0,
+      max: 30
+    },
+    'exercises.$.comment': {
+      type: String,
+      optional: true,
+      max: 1000
+    },
+    'exercises.$.trainingPhase': {
+      type: String,
+      optional: true,
+      max: 50
+    },
+    fieldSize: {
+      type: Number,
+      allowedValues: [125, 250, 500, 750, 1000]
+    },
+    nrOfPlayers: {
+      type: Number,
+      optional: true,
+      min: 0,
+      max: 20
+    },
+    trainingDate: {
+      type: String,
+      optional: true,
+      // https://stackoverflow.com/questions/3143070/javascript-regex-iso-datetime
+      regEx: /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/
+    },
+    teamSharing: {
+      type: Object,
+      optional: true,
+    },
+    'teamSharing.teamId': {
+      type: String,
+      regEx: SimpleSchema.RegEx.id,
+    },
+    'teamSharing.coach': {
+      type: Boolean,
+      defaultValue: false,
+    },
+    'teamSharing.coordinator': {
+      type: Boolean,
+      defaultValue: false,
+    },
+    'teamSharing.player': {
+      type: Boolean,
+      defaultValue: false,
+    },
+    'teamSharing.vote4fun': {
+      type: Boolean,
+      defaultValue: false,
+    },
+    vote4fun: {
+      type: Object,
+      optional: true,
+    },
+    'vote4fun.type': {
+      type: String,
+      allowedValues: ['clubteam', 'open'],
+    },
+    'vote4fun.title': {
+      type: String,
+      min: 3,
+      max: 40,
+    },
+    'vote4fun.exercises': {
+      type: Array,
+      minCount: 2,
+      maxCount: 4,
+    },
+    'vote4fun.exercises.$': {
+      type: Object,
+    },
+    'vote4fun.exercises.$.exerciseId': {
+      type: String,
+      regEx: SimpleSchema.RegEx.Id,
+    },
+    'vote4fun.exercises.$.playerIds': {
+      type: Array,
+    },
+    'vote4fun.exercises.$.playerIds.$': {
+      type: String,
+      regEx: SimpleSchema.RegEx.Id,
+    },
+    'vote4fun.deadline': {
+      type: String,
+      // https://stackoverflow.com/questions/3143070/javascript-regex-iso-datetime
+      regEx: /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/,
+    },
+    'vote4fun.guestIDs': {
+      type: Array,
+      optional: true
+    },
+    'vote4fun.guestIDs.$': {
+      type: String,
+      regEx: SimpleSchema.RegEx.Id,
+    },
+    'vote4fun.showIntermediaResults': {
+      type: Boolean,
+      defaultValue: false,
+    },
+    'vote4fun.showFinalResults': {
+      type: Boolean,
+      defaultValue: false,
+    },
+    'vote4fun.notificationHoursBeforeDeadline': {
+      type: Number,
+      defaultValue: 1,
+      min: 1,
+      max: 24,
+    },
+    'vote4fun.notificationAfterPercentageVoted': {
+      type: Number,
+      min: 0,
+      max: 100,
+    }
+}
+\end{lstlisting}

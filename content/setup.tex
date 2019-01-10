@@ -1,0 +1,64 @@
+\section{Setup Guide}
+\label{sec:Setup}
+\lhead{Setup Guide}
+
+This chapter deals with the technical details of how to setup the \textit{Connected.Football} application for future development. To do so, it is explained how the source code artefacts can be retrieved, how the necessary modules can be installed with \textit{Node.js}, how an Android device can be set up to be used during development, and eventually how to deploy and run the application on the device, as well as how to use it once it was deployed. 
+
+\subsection{Retrieval of Sources}
+\label{ssec:retrieval}
+
+The source code of the application can be found on \textit{GitHub}. For reasons of confidentiality, the link to the actual repository can not be disclosed in this document. Access to the repository can be requested from the owner of the \textit{Connected.Football} application. Once access has been granted, the repository has to be checked out to a local machine using \textit{Git}.
+\newline
+Further development artefacts, such as design mockups and state diagrams, can be found in an \textit{SVN} repository of Fontys University of Applied Sciences. The repository can be found at \href{https://www.fontysvenlo.org/svn/2018/sofa2018/g2}{\nolinkurl{https://www.fontysvenlo.org/svn/2018/sofa2018/g2}}. Access to the repository can be requested from the lecturers of SEBI Venlo. For the deployment of the application itself access to this repository is not a necessity.
+\newline
+Since it is unlikely that a future development team that is not enrolled at Fontys University of Applied Sciences would get access to the aforementioned repositories, the mentioned diagrams can be found in the appendix of this document, more specifically \textit{Appendix \ref{appendix:activity_diagrams}: \nameref{appendix:activity_diagrams}}, \textit{Appendix \ref{appendix:state_machine_diagrams}: \nameref{appendix:state_machine_diagrams}} and \textit{Appendix \ref{appendix:mockups}: \nameref{appendix:mockups}}.
+
+\subsection{Installing modules}
+\label{ssec:modules}
+
+Since the application is based on the \textit{React Native} framework, it is necessary to install further modules using \textit{Node.js}. It is therefore required to install \textit{Node.js}, which comes bundled with \textit{NPM}, the package manager of \textit{Node.js}. All can be downloaded at \href{https://nodejs.org/}{\nolinkurl{https://nodejs.org/}}.
+\newline
+Once the repository has been downloaded to a local machine which has \textit{Node.js} installed, it is necessary to install the modules as they are denoted by the file \textit{package.json}. To do so, the following command needs to be executed in the same directory as the aforementioned file:
+
+\begin{lstlisting}[language=bash,caption=Node.js Installation,label=nodeInstallation]
+npm install
+\end{lstlisting}
+
+If a new \textit{Node.js} module is to be installed during future development, it can be installed with the command below. In this case the file \textit{package.json} needs to be committed to the repository, so all other team members can adapt to the change by running the command mentioned in Listing \ref{nodeInstallation} again.
+
+\begin{lstlisting}[language=bash,caption=Node.js Installation of a specific module,label=nodeInstallationSpecificModule]
+npm install --save [NAME OF THE TO-BE-INSTALLED MODULE]
+\end{lstlisting}
+
+\subsection{Mobile Platform Setup}
+\label{ssec:mobile}
+
+Since \textit{React Native} applications are created with a mobile platform as a target, it is necessary to have a mobile device ready for development and testing. During the project, Android devices were made use of. To deploy \textit{React Native} applications to any kind of Android device, it is required to install the \textit{ADB} drivers on the development machine. A guide to installing and using \textit{ADB} can be found in the Android developer documentation, specifically at \href{https://developer.android.com/studio/command-line/adb}{\nolinkurl{https://developer.android.com/studio/command-line/adb}}.
+\newline
+During the course of the project, it was tried to run the application on an \textit{iOS} device, both physical and emulated. Since there have been a great amount of problems trying to get the application to run, the deployment to the \textit{iOS} platform has not played a part in this project and was not followed upon on further. Therefore, there is also no mention of \textit{iOS} in the further setup.
+\newline
+\textit{React Native} applications can be deployed to both physical devices as well as emulated ones. To deploy a development build of a \textit{React Native} application to a physical device, the device needs to be enabled to handle USB debugging. Instructions to enable USB debugging can be found at \href{https://facebook.github.io/react-native/docs/running-on-device.html}{\nolinkurl{https://facebook.github.io/react-native/docs/running-on-device.html}}.
+\newline
+If no physical Android device is available for development purposes, an Android device can be emulated on the development machine. Known as \textit{AVDs}, such emulated devices can be created and started using the Android Development Studio software. Further details can again be found at the Android developer documentation, at \href{https://developer.android.com/studio/run/managing-avds}{\nolinkurl{https://developer.android.com/studio/run/managing-avds}}. The \textit{AVD} has enabled USB debugging by default.
+\newline
+To test if a physical or emulated device is ready to be used for \textit{React Native} development, the following command can be ran:
+
+\begin{lstlisting}[language=bash,caption=ADB Connection Test,label=adbTest]
+adb devices
+\end{lstlisting}
+
+If the device is connected properly, the command will return its name and ID. If this is the case, the device is ready to be used for development.
+
+\subsection{Deploying and running}
+\label{ssec:deploy}
+
+Once a device is ready to be used, the application can be built. To do so, the following commands need to be run:
+
+\begin{lstlisting}[language=bash,caption=Building and Deploying,label=buildAndDeploy]
+gradlew clean               # in the /android subfolder
+react-native run-android    # in the main folder
+\end{lstlisting}
+
+This will clean and retrieve any dependencies needed and then install a development build of the application on the connected device. The development build can stay open on the device as long as it stays connected. If there is a change in the source code, the change can be reflected in the build without recompiling, since the development build connects to the development machine as a server. On a physical device, the device itself can be shaken to bring up the developer menu, which includes commands to reload once, reload every time there is a change and even to reload over a wireless connection. On emulated device, the letter \textit{R} reloads the application. If the connection between server and device is separated, the application needs to be built and deployed again.
+\newline
+After following this guide, the application should be accessible on an Android device. Please note that an account is required to access all functionality of the application, including the functionality developed during the project in question. Such an account can be requested by the owner of the \textit{Connected.Football} application.

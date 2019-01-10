@@ -1,0 +1,83 @@
+\section{Functionality \textit{Vote4Fun}}
+\label{sec:Vote4Fun}
+\lhead{Functionality \textit{Vote4Fun}}
+
+This chapter describes functionality of the Vote4Fun extension. The basic idea of this extension is that a coach is able to create a poll for players that will be able to vote for exercises. To do so, a setup wizard was created that takes the user through the necessary steps to create such a poll. The wizard can be found during the creation of a new program, as it can be seen in \textit{Figure \ref{fig:select-wizard-screen}}.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.55\textwidth,keepaspectratio]{content/pictures/screencap.png}
+	\caption{Starting the Wizard in \textit{New program}}
+	\label{fig:select-wizard-screen}
+\end{figure}
+
+The wizard has four stages, first the coach will be able to give the poll a name, then he will be able to select a team that is allowed to vote for this poll. After this step, the coach is allowed to add guests to the poll, guests are users that are not in the previously selected team. This step is not mandatory and can be skipped. The coach can than set the training programs that should be voted upon as well as a deadline for the poll.
+\newline
+Now a confirmation page is prompted where all entered information are displayed and the coach is able to confirm the entered details or correct information, if needed. If everything is correct, the application sends a \textit{GraphQL} mutation to a server, where a new poll object is created using the information entered by the user. A schema of such an object can be found in \textit{Listing \ref{lst:vote4fun}}.
+\newline
+Almost all components written as a part of the project are functional components. They make use of a \textit{Node.js} module called \textit{recompose}. This means that the functional part of the component is strictly used for rendering purposes. No logic is implemented this way. Making use of \textit{recompose}'s features such as \textit{withHandlers}, \textit{withState}, \textit{onlyUpdateForKeys} and \textit{mapToProps}, logic can be implemented and supplied to the functional component. This way, business logic can be reused rather easily. State can also be applied and managed as well.
+\newline
+The entire wizard is being used using a navigation push. This means the wizard is encapsulated, with only properties and callbacks being handed down through the navigation component inside the pushing operation.
+\newline
+The following snippet of code (see \textit{Listing \ref{lst:componentWithRecompose}}) shows a simplified version of the Wizard setup as it is written in \textit{React Native}. This snippet shows the applicable usage of \textit{recompose}. The source code first defines as functional component called \textit{WizardProcess}, which takes a variable and two functions as its parameters. It returns a rendering function that makes use of the supplied parameters to show certain stages of the setup depending on one variable. Depending on the variable \textit{stage}, different components are shown, including the buttons that increment and decrement the stage. However, the buttons do not handle or implement this incrementation logic themselves. They too reference only what is supplied to the rendering function, which are the functions \textit{incrementStage} and \textit{decrementStage}. \textit{recompose} is than made use of to first define the state of the component, including a default value and a function name to change said value. Furthermore, business logic is implemented, which makes use of the aforementioned state. All these definitions are mapped as properties of the component, so that the rendering function can make use of them. The component is also told to only trigger a new rendering when the state \textit{stage} changes. As it can be seen, \textit{recompose} divided the component into a visual and a logical part, with both being changeable without having to change the other. 
+
+\begin{lstlisting}[language=javascript,caption=Simplified Wizard \textit{React Native} Component using \textit{recompose},label=lst:componentWithRecompose]
+import React from 'react'
+import {View, TouchableOpacity, Icon} from 'react-native'
+import {compose, mapProps, withHandlers, withState, onlyUpdateForKeys} from 'recompose'
+
+const WizardProcess = ({
+  stage,
+  incrementStage,
+  decrementStage,
+}) => {
+  return (
+    <View>
+      {stage == 0 && <WizardStageTitle/>}
+      {stage == 1 && <WizardStageTeam />}
+      {stage == 2 && <WizardStageGuests />}
+      {stage == 3 && <WizardStageExercises />}
+      {stage == 4 && <WizardStageDueDate />}
+      {stage == 5 && <WizardStageCheck />}
+
+      <View>
+        {stage != 0 && (
+          <TouchableOpacity onPress={decrementStage}>
+            <Icon name='arrow-circle-left' size={60} />
+          </TouchableOpacity>
+        )}
+        {(stage >= 0 && stage <= 4) &&
+          <TouchableOpacity onPress={incrementStage}>
+            <Icon name='arrow-circle-right' size={60} />
+          </TouchableOpacity>
+        }
+        {stage == 5 && (
+          <TouchableOpacity onPress={buildVote4FunObject}>
+            <Icon name='check-circle' size={60} />
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  )
+}
+export default compose(
+  withState('stage', 'setStage', 0),
+  withHandlers({
+    incrementStage: props => () => {
+      props.setStage(props.stage + 1)
+    },
+    decrementStage: props => () => {
+      props.setStage(props.stage - 1)
+    },
+  mapProps(props => ({
+    stage: props.stage,
+    incrementStage: props.incrementStage,
+    decrementStage: props.decrementStage,
+  })),
+  onlyUpdateForKeys([
+    'stage',
+  ])
+)(WizardProcess)
+\end{lstlisting}
+
+Other than the main logic of the setup wizard, the components that are displayed as part of the wizard as well as the pages that are iterated over during the setup are components themselves. Each has their own encapsulated logic and rendering presentation.
